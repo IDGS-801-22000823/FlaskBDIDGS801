@@ -13,14 +13,28 @@ app.config.from_object(DevelopmentConfig)
 csrf=CSRFProtect()
 
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 @app.route("/index")
 def index():
-	return render_template("index.html")
+    create_form=forms.UserForm2(request.form)
+    alumno=Alumnos.query.all() # select*from alumnos
+    return render_template("index.html", form=create_form, alumnos=alumno)
+
+@app.route("/detalles", methods=["GET", "POST"])
+def detalles():
+    if request.method == 'GET':
+        id=request.args.get('id')
+        alum1 = db.session.query(Alumnos).filter_by(id=id).first() 
+        id=request.args.get('id')
+        nombre=alum1.nombre
+        apaterno=alum1.apaterno
+        email=alum1.email
+    return render_template("detalles.html", nombre=nombre, apaterno=apaterno, email=email)
 
 if __name__ == '__main__':
     csrf.init_app(app)
     db.init_app(app)
+    
     with app.app_context():
         db.create_all()
 app.run()
